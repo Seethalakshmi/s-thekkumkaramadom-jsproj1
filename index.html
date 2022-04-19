@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <link rel="stylesheet" href="./style.css">-->
+    <title>JSONOutput</title>
+</head>
+<body>
+
+<div><b>The IP Address is </b>
+    <label id="ip_id"></label>
+</div>
+</p>
+
+
+<div><b>The header is </b>
+    <label id="header_id"></label></br></br>
+</div>
+</p>
+
+<label id="datetime_id"></label></br></br>
+<div>
+    <label for="user_input">Enter a valid object/array</label>
+    <textarea id="user_input" value=""></textarea>
+</div>
+</p>
+<button type="submit" name="submit" onclick="onSubmit()">Validate</button><br>
+<span>Validate Json :</span>
+<label id="result"></label><br>
+<label  style="color: red" id="err_msg"></label>
+<p/>
+<div>
+    <label for="user_text">Enter a text</label>
+    <textarea id="user_text" value=""></textarea>
+</div>
+</p>
+<button type="submit" name="submit" onclick="populateMD5onSubmit()">Show MD5</button><br>
+<span>MD5 result :</span>
+<label id="md5_result"></label>
+</body>
+
+</html>
+<script  src="jsresponse.js"></script>
