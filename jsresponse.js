@@ -1,13 +1,12 @@
 
-//fetch('http://jsontest.com')
-
+//These are the URLs for JSON response
 const ipUrl='http://ip.jsontest.com/'
 const headerUrl = 'http://headers.jsontest.com/'
 const dateTimeUrl = 'http://date.jsontest.com'
 let validateUrl = 'http://validate.jsontest.com/'
 let md5Url = 'http://md5.jsontest.com/'
 
-//calling fetch api
+//fetch api
 async function getResponse(url){
     const response = await fetch(url)
     return await response.json()
@@ -29,7 +28,7 @@ function onSubmit(){
         let validateJsonUrl = new URL(validateUrl)
         //combines the url and user input and validating the user input
         validateJsonUrl.searchParams.append('json',document.getElementById('user_input').value )
-        console.log("%cComplete URL ---"+validateJsonUrl,'Color:blue')
+        console.log("Complete URL ---"+validateJsonUrl)
         getResponse(validateJsonUrl).then(validateRes => {
             document.getElementById('result').innerHTML = validateRes.validate
             document.getElementById('err_msg').innerHTML = (!validateRes.validate) ? validateRes.error:''
@@ -54,29 +53,26 @@ function populateMD5onSubmit(){
 }
 
 function test_getIPResponse(){
-    getResponse(ipUrl).then(ipJson => test_log(JSON.stringify(ipJson).indexOf('ip')!==-1, 'IP address '))
-    //getResponse(ipUrl).then(ipJson => test_log(JSON.stringify(ipJson).indexOf('ip')!=-1, 'IP address '))
+    //tests for ip property
+    getResponse(ipUrl).then(ipJson => test_log(ipJson.hasOwnProperty('ip'), 'IP Address '))
 }
 
 function test_getHeaderResponse(){
     getResponse(headerUrl).then(headerJson => {
-        //tests for each header attributes
-        test_log(JSON.stringify(headerJson).indexOf('Accept')!==-1, 'Header-Accept ')
-        test_log(JSON.stringify(headerJson).indexOf('X-Cloud-Trace-Context')!==-1, 'Header-X-Cloud-Trace-Context ')
-        test_log(JSON.stringify(headerJson).indexOf('traceparent')!==-1, 'Header-traceparent ')
-        test_log(JSON.stringify(headerJson).indexOf('User-Agent')!==-1, 'Header-User-Agent ')
-        test_log(JSON.stringify(headerJson).indexOf('Referer')!==-1, 'Header-Referer ')
-        test_log(JSON.stringify(headerJson).indexOf('Host')!==-1, 'Header-Host ')
-        test_log(JSON.stringify(headerJson).indexOf('Accept-Language')!==-1, 'Header-Accept-Language ')
+        //checks for atleast host is present
+        if(Object.keys(headerJson).length > 1)
+            test_log(headerJson.hasOwnProperty('Host'), 'Header-Host ')
+        else
+            console.log("There are no Headers here")
     })
 }
 
 function test_getDateTimeResponse(){
     getResponse(dateTimeUrl).then(dateTimeJson => {
         //tests for each date-time attributes
-        test_log(JSON.stringify(dateTimeJson).indexOf('date')!==-1, 'Date & Time-Date ')
-        test_log(JSON.stringify(dateTimeJson).indexOf('time')!==-1, 'Date & Time-Time ')
-        test_log(JSON.stringify(dateTimeJson).indexOf('milliseconds_since_epoch')!==-1, 'Date & Time-milliseconds_since_epoch ')
+        test_log(dateTimeJson.hasOwnProperty('date'), 'Date & Time-Date ')
+        test_log(dateTimeJson.hasOwnProperty('time'), 'Date & Time-Time ')
+        test_log(dateTimeJson.hasOwnProperty('milliseconds_since_epoch'), 'Date & Time-milliseconds_since_epoch ')
     })
 }
 //calls a single function for validation
@@ -112,7 +108,7 @@ function test_validateWrongOnSubmit(){
 //checks for presence of md5 property
 function test_md5OnSubmit(){
     const testMD5Url = 'http://md5.jsontest.com/?text=hello'
-    getResponse(testMD5Url).then(testMD5response => test_log(JSON.stringify(testMD5response).indexOf('md5')!==-1, 'md5 '))
+    getResponse(testMD5Url).then(testMD5response => test_log(testMD5response.hasOwnProperty('md5'), 'md5 '))
 }
 main()
 //calling test functions
