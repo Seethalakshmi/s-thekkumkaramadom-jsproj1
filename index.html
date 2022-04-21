@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,39 +8,39 @@
     <link rel="shortcut icon" href="#">
     <title>JSONOutput</title>
 </head>
-<body>
+
+<body style="margin: 3%">
 
 <div><b>The IP Address is </b>
     <label id="ip_id"></label>
 </div>
 </p>
 
-
 <div><b>The header is </b>
-    <label id="header_id"></label></br></br>
+    <pre id="header_id"></pre>
 </div>
 </p>
-
-<label id="datetime_id"></label></br></br>
-<div>
-    <label for="user_input">Enter a valid object/array</label>
-    <textarea id="user_input" value=""></textarea>
+<div><b>The date and time that  updates every second is </b>
+    <label id="datetime_id"></label></div>
+</br></br>
+<div><b>
+    <label for="user_input">Enter a valid object/array</label></b></br>
+    <textarea rows="7" cols="80" id="user_input" value=""></textarea>
 </div>
 </p>
 <button type="submit" name="submit" onclick="onSubmit()">Validate</button><br>
-<span>Validate Json :</span>
+<span><b>Validate Json :</b></span>
 <label id="result"></label><br>
 <label  style="color: red" id="err_msg"></label>
 <p/>
 <div>
-    <label for="user_text">Enter a text</label>
-    <textarea id="user_text" value=""></textarea>
+    <b> <label for="user_text">Enter a text</label></b> </br>
+    <textarea rows="1"  cols="80" id="user_text" value=""></textarea>
 </div>
 </p>
 <button type="submit" name="submit" onclick="populateMD5onSubmit()">Show MD5</button><br>
-<span>MD5 result :</span>
+<b><span>MD5 result :</span></b>
 <label id="md5_result"></label>
 </body>
-
 </html>
 <script  src="jsresponse.js"></script>

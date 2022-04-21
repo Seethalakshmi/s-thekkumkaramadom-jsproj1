@@ -3,21 +3,17 @@
 const ipUrl='http://ip.jsontest.com/'
 const headerUrl = 'http://headers.jsontest.com/'
 const dateTimeUrl = 'http://date.jsontest.com'
-let validateUrl = 'http://validate.jsontest.com/'
-let md5Url = 'http://md5.jsontest.com/'
+const validateUrl = 'http://validate.jsontest.com/'
+const md5Url = 'http://md5.jsontest.com/'
 
-//fetch api
-async function getResponse(url){
-    const response = await fetch(url)
-    return await response.json()
-}
+
 //this is main part
 async function main(){
     try{
-        await getResponse(ipUrl).then(ipRes => document.getElementById('ip_id').innerHTML= ipRes.ip)//getting ip address here
-        await getResponse(headerUrl).then(headRes => document.getElementById('header_id').innerHTML = JSON.stringify(headRes))//getting headers here
+        await getResponse(fetch, ipUrl).then(ipRes => document.getElementById('ip_id').innerHTML= ipRes.ip)//getting ip address here
+        await getResponse(fetch, headerUrl).then(headRes => document.getElementById('header_id').innerHTML = JSON.stringify(headRes, undefined, 2))//getting headers here
         //calls setInterval for updating every second
-        setInterval( function(){getResponse(dateTimeUrl).then(dateTimeRes=> document.getElementById('datetime_id').innerHTML= 'The date and time that  updates every second is '+dateTimeRes.date+' '+dateTimeRes.time)},1000)
+        setInterval( function(){getResponse(fetch, dateTimeUrl).then(dateTimeRes=> document.getElementById('datetime_id').innerHTML= dateTimeRes.date+' '+dateTimeRes.time)},1000)
     }catch (err){
         console.log("Got an error : "+err.message)
     }
@@ -29,7 +25,7 @@ function onSubmit(){
         //combines the url and user input and validating the user input
         validateJsonUrl.searchParams.append('json',document.getElementById('user_input').value )
         console.log("Complete URL ---"+validateJsonUrl)
-        getResponse(validateJsonUrl).then(validateRes => {
+        getResponse(fetch, validateJsonUrl).then(validateRes => {
             document.getElementById('result').innerHTML = validateRes.validate
             document.getElementById('err_msg').innerHTML = (!validateRes.validate) ? validateRes.error:''
 
@@ -45,37 +41,105 @@ function populateMD5onSubmit(){
         //combines the url and user input and populating the md5
         md5populateUrl.searchParams.append('text', document.getElementById('user_text').value)
         console.log(" MD5 URL is ----"+md5populateUrl)
-        getResponse(md5populateUrl).then(md5Res => document.getElementById('md5_result').innerHTML = md5Res.md5)
+        getResponse(fetch, md5populateUrl).then(md5Res => document.getElementById('md5_result').innerHTML = md5Res.md5)
     }catch (err) {
         console.log("Got an error on populating md5 : "+err.message)
     }
 
 }
-
-function test_getIPResponse(){
-    //tests for ip property
-    getResponse(ipUrl).then(ipJson => test_log(ipJson.hasOwnProperty('ip'), 'IP Address '))
+//this is the function for fetch call and to be tested
+async function getResponse(_fetch = fetch, url) {
+    const result = await _fetch(url)
+    if (result.ok === false)
+        return false
+    return await result.json()
 }
 
-function test_getHeaderResponse(){
-    getResponse(headerUrl).then(headerJson => {
-        //checks for atleast host is present
-        if(Object.keys(headerJson).length > 1)
-            test_log(headerJson.hasOwnProperty('Host'), 'Header-Host ')
-        else
-            console.log("There are no Headers here")
-    })
+async function test_getIPResponse(){
+    //tests for dummy ip property
+    //tests two parts one is result is not ok and result is ok
+
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://ip.jsontest.co')//putting a false url
+    test_log(response === false, 'Falsy IP Address response ')
+
+    const _fetch_ip = (url) => {
+        return new Promise((resolve, reject) => {
+            resolve({
+                ok: true,
+                json: () => new Promise(resolve => resolve({
+                    ip: '127.0.0.1'
+                }))
+            })
+        })
+    }
+    response = await getResponse(_fetch_ip, 'ipUrl')
+    test_log(response?.ip === '127.0.0.1', 'IP Address ')
 }
 
-function test_getDateTimeResponse(){
-    getResponse(dateTimeUrl).then(dateTimeJson => {
-        //tests for each date-time attributes
-        test_log(dateTimeJson.hasOwnProperty('date'), 'Date & Time-Date ')
-        test_log(dateTimeJson.hasOwnProperty('time'), 'Date & Time-Time ')
-        test_log(dateTimeJson.hasOwnProperty('milliseconds_since_epoch'), 'Date & Time-milliseconds_since_epoch ')
-    })
+async function test_getHeaderResponse(){
+//tests for dummy headers and checks for two cases result not okay and result okay
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://head.jsontest.com')//used head instead of header
+    test_log(response === false, 'Falsy Header response ')
+    const _fetch_header = (url) => {
+        return new Promise((resolve, reject) => {
+            resolve({
+                ok: true,
+                json: () => new Promise(resolve => resolve({
+                    Host: 'http://does.nothing.com'
+                }))
+            })
+        })
+    }
+    response = await getResponse(_fetch_header, 'headerUrl')
+    test_log(response.Host === 'http://does.nothing.com', 'Header-Host ')
+
 }
-//calls a single function for validation
+
+//tests for date and time response
+async function test_getDateTimeResponse(){
+//checks 2 scenarios response not ok and response ok
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://date.json.com')//omitted test from json test
+    test_log(response === false, 'Falsy Date & Time response ')
+    const _fetch_dateTime = (url) => {
+        return new Promise((resolve, reject) => {
+            resolve({
+                ok: true,
+                json: () => new Promise(resolve => resolve({
+                    date: '20 April',
+                    time:'10:20',
+                    milliseconds_since_epoch:3000
+                }))
+            })
+        })
+    }
+    response = await getResponse(_fetch_dateTime, 'dateTimeUrl')
+    test_log(response?.date === '20 April', 'Date & Time-Date ')
+    test_log(response?.time === '10:20', 'Date & Time-Time ')
+    test_log(response?.milliseconds_since_epoch === 3000, 'Date & Time-milliseconds_since_epoch ')
+
+}
+//calls a single logging function for validation (if else)
 function test_log(valid, msg){
     if(valid)
         console.log(msg + 'Passed')
@@ -83,32 +147,88 @@ function test_log(valid, msg){
         console.log(msg + 'Failed')
 }
 //tests for right JSON value
-function test_validateRightOnSubmit() {
+async function test_validateRightOnSubmit() {
+//checks 2 scenarios response not ok and response ok
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://validate.jsontest.co/json={"name":"Seetha"}')
+    test_log(response === false, 'Falsy Right JSON Validation response ')
     const testValidateJsonUrl1 = 'http://validate.jsontest.com/?json={"name":"Seetha"}'
-    getResponse(testValidateJsonUrl1).then(testValJson1 => {
-        let testValString1 = JSON.stringify(testValJson1, ['validate'])
-        if (testValString1.includes('true'))
-            console.log("Right JSON Validation Passed")
-        else
-            console.log("Right JSON Validation Failed")
-
-    })
+    //tests for hard-coded user input
+    const _fetch_json_validation1 = (url) =>{
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok:true,
+                json: () => new Promise(resolve => resolve({
+                    validate: true
+                }))
+            })
+        }))
+    }
+    response = await getResponse(_fetch_json_validation1, testValidateJsonUrl1)
+    test_log(response?.validate === true, 'Right JSON Validation ')
 }
 //tests for wrong JSON value
-function test_validateWrongOnSubmit(){
+async function test_validateWrongOnSubmit(){
+//checks 2 scenarios response not ok and response ok
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://validate.jontest.co/json={"name":"Seetha"')
+    test_log(response === false, 'Falsy Wrong JSON Validation response ')
+
     const testValidateJsonUrl2 = 'http://validate.jsontest.com/?json={"name":"Seetha"'
-    getResponse(testValidateJsonUrl2).then(testValJson2 => {
-        let testValString2 = JSON.stringify(testValJson2, ['validate'])
-        if (testValString2.includes('false'))
-            console.log("Wrong JSON Validation Passed")
-        else
-            console.log("Wrong JSON Validation Failed")
-    })
+
+    const _fetch_json_validation2 = (url) =>{
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok:true,
+                json: () => new Promise(resolve => resolve({
+                    validate: false
+                }))
+            })
+        }))
+    }
+    response = await getResponse(_fetch_json_validation2, testValidateJsonUrl2)
+    test_log(response?.validate === false, 'Wrong JSON Validation ')
+
 }
 //checks for presence of md5 property
-function test_md5OnSubmit(){
-    const testMD5Url = 'http://md5.jsontest.com/?text=hello'
-    getResponse(testMD5Url).then(testMD5response => test_log(testMD5response.hasOwnProperty('md5'), 'md5 '))
+async function test_md5OnSubmit(){
+    //checks 2 scenarios response not ok and response ok
+    const _fetch_not_ok = (url) => {
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok: false
+            })
+        }))
+    }
+    let response = await getResponse(_fetch_not_ok,'http://md5.jontest.co/text=')
+    test_log(response === false, 'Falsy md5 response ')
+
+    //const testMD5Url = 'http://md5.jsontest.com/?text=hello'
+    const _fetch_md5 = (url) =>{
+        return new Promise(((resolve, reject) => {
+            resolve({
+                ok:true,
+                json: () => new Promise(resolve => resolve({
+                    md5:'xn3y1o2381273eno1eic'
+                }))
+            })
+        }))
+    }
+    response = await getResponse(_fetch_md5, 'testMD5Url')
+    test_log(response?.md5 === 'xn3y1o2381273eno1eic', 'md5 ')
+
 }
 main()
 //calling test functions
