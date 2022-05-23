@@ -1,10 +1,14 @@
-
 //These are the URLs for JSON response
-const ipUrl='http://ip.jsontest.com/'
-const headerUrl = 'http://headers.jsontest.com/'
-const dateTimeUrl = 'http://date.jsontest.com'
-const validateUrl = 'http://validate.jsontest.com/'
-const md5Url = 'http://md5.jsontest.com/'
+//const ipUrl='http://ip.jsontest.com/'
+const ipUrl='http://localhost:8080/ipAddress'
+// const headerUrl = 'http://headers.jsontest.com/'
+const headerUrl = 'http://localhost:8080/headers'
+// const dateTimeUrl = 'http://date.jsontest.com'
+const dateTimeUrl = 'http://localhost:8080/datetime'
+// const validateUrl = 'http://validate.jsontest.com/'
+const validateUrl = 'http://localhost:8080/validateJson'
+// const md5Url = 'http://md5.jsontest.com/'
+const md5Url = 'http://localhost:8080/md5'
 
 
 //this is main part
